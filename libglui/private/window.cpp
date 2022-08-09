@@ -1,4 +1,5 @@
 #include "private/window.h"
+#include "private/modalwindow.h"
 #include <gl/GL.h>
 
 using namespace glui;
@@ -35,8 +36,10 @@ Window::Window(std::string title, int width, int height) :
     _height(height),
     _running(true),
     _debugConsole(false),
+    _clearColor(0, 0, 0, 1),
     _keyCallback(nullptr),
     _shortcutCallbacks() {
+
     HRESULT hr = S_OK;
     HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
 
@@ -58,12 +61,29 @@ Window::Window(std::string title, int width, int height) :
     // Attach this class to window
     SetWindowLongPtrA(_window, GWLP_USERDATA, (LONG_PTR)this);
 
-    // Initialize OpenGL
+    // Initialize console
     _initializeConsole();
+
+    // Initialize OpenGL
     _initializeOpenGL();
 
     // Show window
     ShowWindow(_window, SW_SHOW);
+}
+
+Window::Window() :
+    _title(""),
+    _width(0),
+    _height(0),
+    _running(true),
+    _debugConsole(false),
+    _clearColor(0, 0, 0, 1),
+    _window(nullptr),
+    _consoleWindow(nullptr),
+    _drawCtx(nullptr),
+    _glCtx(nullptr),
+    _keyCallback(nullptr),
+    _shortcutCallbacks() {
 }
 
 Window::~Window() {
@@ -72,28 +92,7 @@ Window::~Window() {
 }
 
 IWindow* Window::makeSubwindow(std::string title, int width, int height) {
-	return nullptr;
-}
-
-void Window::registerWindowClass() {
-    HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
-
-    // Create our window classname configuration
-    WNDCLASSEXA wc = { 0 };
-    wc.cbSize = sizeof(wc);
-    wc.lpszClassName = "GLUI_WINDOW";
-    wc.hInstance = hInstance;
-    wc.style = CS_VREDRAW | CS_HREDRAW;
-    wc.lpfnWndProc = GLUIWndProcA;
-    wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-    wc.hIconSm = wc.hIcon;
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-
-    // Register our classname for the window with our WndProc
-    HRESULT hr = RegisterClassExA(&wc);
-    if (FAILED(hr)) {
-        printf("Failed to register window classname.\nError: 0x%08x\n", hr);
-    }
+	return new ModalWindow(_window, title, width, height);
 }
 
 bool Window::isRunning() {
@@ -128,8 +127,60 @@ void Window::toggleConsole() {
     _debugConsole = !_debugConsole;
 }
 
-void Window::render() {
+void Window::setBackgroundColor(types::color col) {
+    _clearColor = col;
+}
 
+void Window::render() {
+    // Make context current
+    wglMakeCurrent(_drawCtx, _glCtx);
+
+    // Clear to color
+    glClearColor(_clearColor.x, _clearColor.y, _clearColor.z, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Swap buffers
+    wglSwapLayerBuffers(_drawCtx, WGL_SWAP_MAIN_PLANE);
+}
+
+void Window::fromCreated(HWND createdWindow) {
+    // Set _window
+    _window = createdWindow;
+
+    // Get window title
+    char buf[256];
+    GetWindowText(createdWindow, buf, 256);
+    _title = buf;
+
+    // Get window size
+    RECT bounds;
+    GetWindowRect(createdWindow, &bounds);
+    _width = bounds.right - bounds.left;
+    _height = bounds.bottom - bounds.top;
+
+    // Initialize OpenGL
+    _initializeOpenGL();
+}
+
+void Window::registerWindowClass() {
+    HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
+
+    // Create our window classname configuration
+    WNDCLASSEXA wc = { 0 };
+    wc.cbSize = sizeof(wc);
+    wc.lpszClassName = "GLUI_WINDOW";
+    wc.hInstance = hInstance;
+    wc.style = CS_VREDRAW | CS_HREDRAW;
+    wc.lpfnWndProc = GLUIWndProcA;
+    wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+    wc.hIconSm = wc.hIcon;
+    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+
+    // Register our classname for the window with our WndProc
+    HRESULT hr = RegisterClassExA(&wc);
+    if (FAILED(hr)) {
+        printf("Failed to register window classname.\nError: 0x%08x\n", hr);
+    }
 }
 
 void Window::unregisterWindowClass() {

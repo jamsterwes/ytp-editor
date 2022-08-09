@@ -32,6 +32,7 @@ namespace glui {
 		virtual void setShortcutCallback(GLUIShortcutCallback cb, unsigned int vk, unsigned int mod) = 0;
 		virtual bool isRunning() = 0;
 		virtual void toggleConsole() = 0;
+		virtual void setBackgroundColor(types::color col) = 0;
 		virtual void render() = 0;
 	};
 }

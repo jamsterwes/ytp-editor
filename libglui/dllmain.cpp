@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include "public/glui.h"
 #include "private/window.h"
+#include "private/modalwindow.h"
 
 using namespace glui;
 
@@ -13,10 +14,14 @@ BOOL APIENTRY DllMain(HMODULE hModule,
     {
     case DLL_PROCESS_ATTACH:
         Window::registerWindowClass();
+        ModalWindow::registerWindowClass();
         break;
     case DLL_THREAD_ATTACH:
+        break;
     case DLL_THREAD_DETACH:
+        break;
     case DLL_PROCESS_DETACH:
+        ModalWindow::unregisterWindowClass();
         Window::unregisterWindowClass();
         break;
     }

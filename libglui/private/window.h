@@ -7,6 +7,7 @@ namespace glui {
 
 	class Window : public IWindow {
 	public:
+		Window();
 		Window(std::string title, int width, int height);
 		~Window();
 
@@ -18,13 +19,16 @@ namespace glui {
 
 		void toggleConsole() override;
 
+		void setBackgroundColor(types::color col) override;
 		void render() override;
+
+		void fromCreated(HWND createdWindow);
 
 		static void registerWindowClass();
 		static void unregisterWindowClass();
 
 		friend LRESULT __stdcall GLUIWndProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-	private:
+	protected:
 		// Window Properties
 		std::string _title;
 		int _width, _height;
@@ -32,6 +36,7 @@ namespace glui {
 		// Window state
 		bool _running;
 		bool _debugConsole;
+		types::color _clearColor;
 
 		// Window Resources
 		HWND _window, _consoleWindow;

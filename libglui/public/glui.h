@@ -11,6 +11,7 @@
 #define GLUI_INTERFACE __declspec(novtable)
 
 #include <string>
+#include "types.h"
 #include "window.h"
 
 namespace glui {

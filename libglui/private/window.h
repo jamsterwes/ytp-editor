@@ -18,6 +18,8 @@ namespace glui {
 
 		void toggleConsole() override;
 
+		void render() override;
+
 		static void registerWindowClass();
 		static void unregisterWindowClass();
 
@@ -33,9 +35,14 @@ namespace glui {
 
 		// Window Resources
 		HWND _window;
+		HDC _drawCtx;
+		HGLRC _glCtx;
 
 		// Callbacks
 		GLUIKeyCallback _keyCallback;
 		std::unordered_map<int, GLUIShortcutCallback> _shortcutCallbacks;
+
+		// Initialization helpers
+		void _initializeOpenGL();
 	};
 }

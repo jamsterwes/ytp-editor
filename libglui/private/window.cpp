@@ -1,4 +1,5 @@
 #include "private/window.h"
+#include <gl/GL.h>
 
 using namespace glui;
 
@@ -55,12 +56,16 @@ Window::Window(std::string title, int width, int height) :
     // Attach this class to window
     SetWindowLongPtrA(_window, GWLP_USERDATA, (LONG_PTR)this);
 
+    // Initialize OpenGL
+    _initializeOpenGL();
+
     // Show window
     ShowWindow(_window, SW_SHOW);
 }
 
 Window::~Window() {
-
+    wglMakeCurrent(nullptr, nullptr);
+    wglDeleteContext(_glCtx);
 }
 
 IWindow* Window::makeSubwindow(std::string title, int width, int height) {
@@ -92,19 +97,6 @@ bool Window::isRunning() {
     return _running;
 }
 
-void Window::toggleConsole() {
-    if (_debugConsole) {
-        FreeConsole();
-    } else {
-        AllocConsole();
-        FILE* stream;
-        freopen_s(&stream, "CONIN$", "rb", stdin);
-        freopen_s(&stream, "CONOUT$", "wb", stdout);
-        freopen_s(&stream, "CONOUT$", "wb", stderr);
-    }
-    _debugConsole = !_debugConsole;
-}
-
 void Window::setKeyCallback(GLUIKeyCallback cb) {
     _keyCallback = cb;
 }
@@ -124,7 +116,67 @@ void Window::setShortcutCallback(GLUIShortcutCallback cb, UINT vk, UINT mods) {
     _shortcutCallbacks.insert({ nextID, cb });
 }
 
+void Window::toggleConsole() {
+    if (_debugConsole) {
+        FreeConsole();
+    } else {
+        AllocConsole();
+        FILE* stream;
+        freopen_s(&stream, "CONIN$", "rb", stdin);
+        freopen_s(&stream, "CONOUT$", "wb", stdout);
+        freopen_s(&stream, "CONOUT$", "wb", stderr);
+    }
+    _debugConsole = !_debugConsole;
+}
+
+void Window::render() {
+
+}
+
 void Window::unregisterWindowClass() {
     HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
     UnregisterClassA("GLUI_WINDOW", hInstance);
+}
+
+void Window::_initializeOpenGL() {
+    // Create draw ctx
+    _drawCtx = GetDC(_window);
+
+    // TODO: check this for issues
+    // Set pixel format for use by OpenGL
+    PIXELFORMATDESCRIPTOR pfd = { 
+    sizeof(PIXELFORMATDESCRIPTOR),   // size of this pfd  
+        1,                     // version number  
+        PFD_DRAW_TO_WINDOW |   // support window  
+        PFD_SUPPORT_OPENGL |   // support OpenGL  
+        PFD_DOUBLEBUFFER,      // double buffered  
+        PFD_TYPE_RGBA,         // RGBA type  
+        24,                    // 24-bit color depth  
+        0, 0, 0, 0, 0, 0,      // color bits ignored  
+        0,                     // no alpha buffer  
+        0,                     // shift bit ignored  
+        0,                     // no accumulation buffer  
+        0, 0, 0, 0,            // accum bits ignored  
+        32,                    // 32-bit z-buffer  
+        0,                     // no stencil buffer  
+        0,                     // no auxiliary buffer  
+        PFD_MAIN_PLANE,        // main layer  
+        0,                     // reserved  
+        0, 0, 0                // layer masks ignored  
+    };
+    int formatIdx = ChoosePixelFormat(_drawCtx, &pfd);
+    SetPixelFormat(_drawCtx, formatIdx, &pfd);
+
+    // Create OpenGL ctx
+    _glCtx = wglCreateContext(_drawCtx);
+
+    // Make context current
+    wglMakeCurrent(_drawCtx, _glCtx);
+
+    // Clear to color
+    glClearColor(0.5f, 0.75f, 1.f, 1.f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // Swap buffers
+    wglSwapLayerBuffers(_drawCtx, WGL_SWAP_MAIN_PLANE);
 }

@@ -34,7 +34,7 @@ namespace glui {
 		bool _debugConsole;
 
 		// Window Resources
-		HWND _window;
+		HWND _window, _consoleWindow;
 		HDC _drawCtx;
 		HGLRC _glCtx;
 
@@ -43,6 +43,7 @@ namespace glui {
 		std::unordered_map<int, GLUIShortcutCallback> _shortcutCallbacks;
 
 		// Initialization helpers
+		void _initializeConsole();
 		void _initializeOpenGL();
 	};
 }

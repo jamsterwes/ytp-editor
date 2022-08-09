@@ -4,20 +4,22 @@
 using namespace glui;
 
 LRESULT CALLBACK glui::GLUIWndProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-    Window* _this = (Window*)GetWindowLongPtrA(hwnd, GWLP_USERDATA);
-
+	Window* _this = (Window*)GetWindowLongPtrA(hwnd, GWLP_USERDATA);
     switch (msg)
     {
     case WM_CLOSE:
         _this->_running = false;
         return DefWindowProcA(hwnd, msg, wParam, lParam);
     case WM_HOTKEY:
-        if (_this->_shortcutCallbacks[wParam] != nullptr) {
+        if (GetActiveWindow() != _this->_window) {
+            return DefWindowProcA(hwnd, msg, wParam, lParam);
+        }
+        if (_this->_shortcutCallbacks[wParam]) {
             _this->_shortcutCallbacks[wParam](_this);
         }
         break;
     case WM_KEYDOWN:
-        if (_this->_keyCallback != nullptr) {
+        if (_this->_keyCallback) {
             _this->_keyCallback(_this, wParam);
         }
         break;
@@ -57,6 +59,7 @@ Window::Window(std::string title, int width, int height) :
     SetWindowLongPtrA(_window, GWLP_USERDATA, (LONG_PTR)this);
 
     // Initialize OpenGL
+    _initializeConsole();
     _initializeOpenGL();
 
     // Show window
@@ -118,13 +121,9 @@ void Window::setShortcutCallback(GLUIShortcutCallback cb, UINT vk, UINT mods) {
 
 void Window::toggleConsole() {
     if (_debugConsole) {
-        FreeConsole();
+        ShowWindow(_consoleWindow, SW_HIDE);
     } else {
-        AllocConsole();
-        FILE* stream;
-        freopen_s(&stream, "CONIN$", "rb", stdin);
-        freopen_s(&stream, "CONOUT$", "wb", stdout);
-        freopen_s(&stream, "CONOUT$", "wb", stderr);
+        ShowWindow(_consoleWindow, SW_SHOW);
     }
     _debugConsole = !_debugConsole;
 }
@@ -136,6 +135,18 @@ void Window::render() {
 void Window::unregisterWindowClass() {
     HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
     UnregisterClassA("GLUI_WINDOW", hInstance);
+}
+
+void Window::_initializeConsole() {
+    AllocConsole();
+    FILE* stream;
+    freopen_s(&stream, "CONIN$", "rb", stdin);
+    freopen_s(&stream, "CONOUT$", "wb", stdout);
+    freopen_s(&stream, "CONOUT$", "wb", stderr);
+    
+    _consoleWindow = GetConsoleWindow();
+    ShowWindow(_consoleWindow, SW_HIDE);
+    SetForegroundWindow(_window);
 }
 
 void Window::_initializeOpenGL() {

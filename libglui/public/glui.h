@@ -11,14 +11,20 @@
 #define GLUI_INTERFACE __declspec(novtable)
 
 #include <string>
+#include <initializer_list>
 #include "types.h"
 #include "window.h"
+#include "menu.h"
 
 namespace glui {
 	class GLUI_INTERFACE IContext {
 	public:
-		virtual IWindow* makeWindow(std::string title, int width, int height) = 0;
+		virtual IWindow* newWindow(std::string title, int width, int height) = 0;
+		virtual IMenu* newMenu() = 0;
 		virtual void pollEvents() = 0;
+
+		// Win32 wrappers
+		virtual std::string openFileDialog(std::initializer_list<std::pair<std::string, std::string>> types) = 0;
 	};
 
 	GLUI_API IContext* init();

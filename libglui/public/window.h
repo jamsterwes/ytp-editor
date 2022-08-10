@@ -26,12 +26,22 @@ namespace glui {
 
 	class GLUI_INTERFACE IWindow {
 	public:
-		virtual IWindow* makeSubwindow(std::string title, int width, int height) = 0;
+		// Menus
+		virtual void setMenu(class IMenu* menu) = 0;
+
+		// Subwindow(s)
+		virtual IWindow* newModal(std::string title, int width, int height) = 0;
+
+		// Callbacks
 		virtual void setKeyCallback(GLUIKeyCallback cb) = 0;
 		virtual void setShortcutCallback(GLUIShortcutCallback cb, unsigned int vk, mods mod) = 0;
 		virtual void setShortcutCallback(GLUIShortcutCallback cb, unsigned int vk, unsigned int mod) = 0;
+
+		// Debug/state
 		virtual bool isRunning() = 0;
 		virtual void toggleConsole() = 0;
+
+		// Rendering
 		virtual void setBackgroundColor(types::color col) = 0;
 		virtual void render() = 0;
 	};

@@ -11,24 +11,34 @@ namespace glui {
 		Window(std::string title, int width, int height);
 		~Window();
 
-		IWindow* makeSubwindow(std::string title, int width, int height) override;
+		// Menus
+		void setMenu(IMenu* menu) override;
+
+		// Subwindow(s)
+		IWindow* newModal(std::string title, int width, int height) override;
+		void fromCreated(HWND createdWindow);
+
+		// Callbacks
 		void setKeyCallback(GLUIKeyCallback cb) override;
 		void setShortcutCallback(GLUIShortcutCallback cb, UINT vk, UINT mods) override;
 		void setShortcutCallback(GLUIShortcutCallback cb, UINT vk, mods mods) override;
-		bool isRunning() override;
 
+		// Debug/state
+		bool isRunning() override;
 		void toggleConsole() override;
 
+		// Rendering
 		void setBackgroundColor(types::color col) override;
 		void render() override;
-
-		void fromCreated(HWND createdWindow);
 
 		static void registerWindowClass();
 		static void unregisterWindowClass();
 
 		friend LRESULT __stdcall GLUIWndProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	protected:
+		// Menus
+		IMenu* _menu;
+
 		// Window Properties
 		std::string _title;
 		int _width, _height;

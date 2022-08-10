@@ -24,6 +24,11 @@ LRESULT CALLBACK glui::GLUIWndProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
             _this->_keyCallback(_this, wParam);
         }
         break;
+    case WM_COMMAND:
+        if (_this->_menu) {
+            _this->_menu->callback(wParam);
+        }
+        break;
     default:
         return DefWindowProcA(hwnd, msg, wParam, lParam);
     }
@@ -31,6 +36,7 @@ LRESULT CALLBACK glui::GLUIWndProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
 }
 
 Window::Window(std::string title, int width, int height) : 
+    _menu(nullptr),
     _title(title),
     _width(width),
     _height(height),
@@ -72,6 +78,7 @@ Window::Window(std::string title, int width, int height) :
 }
 
 Window::Window() :
+    _menu(nullptr),
     _title(""),
     _width(0),
     _height(0),
@@ -91,7 +98,12 @@ Window::~Window() {
     wglDeleteContext(_glCtx);
 }
 
-IWindow* Window::makeSubwindow(std::string title, int width, int height) {
+void Window::setMenu(IMenu* menu) {
+    _menu = menu;
+    SetMenu(_window, (HMENU)menu->getHandle());
+}
+
+IWindow* Window::newModal(std::string title, int width, int height) {
 	return new ModalWindow(_window, title, width, height);
 }
 

@@ -23,6 +23,26 @@ void testingCallback(glui::IMenu* menu) {
 	printf("Testing...\n");
 }
 
+void setupMenuBar(glui::IWindow* win) {
+	auto menu = win->getMenu();
+	menu->add({ "&File", {
+		{"&New Project\tCtrl+N", nullptr},
+		glui::menu::SEPARATOR,
+		{"&Open\tCtrl+O", openCallback},
+		glui::menu::SEPARATOR,
+		{"&Save\tCtrl+S", nullptr},
+		{"Save &As\tCtrl+Shift+S", nullptr},
+	} });
+	menu->add({ "&Edit", {
+		{"&Undo\tCtrl+Z", nullptr},
+		glui::menu::SEPARATOR,
+		{"Cu&t\tCtrl+X", nullptr},
+		{"&Copy\tCtrl+C", nullptr},
+		{"&Paste\tCtrl+V", nullptr}
+	} });
+	menu->refresh();
+}
+
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd) {
 	ctx = glui::init();
 
@@ -30,13 +50,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	win->setShortcutCallback(openCallback, 'O', glui::mods::CTRL);
 	win->setShortcutCallback(saveCallback, 'S', glui::mods::CTRL);
 	win->setShortcutCallback(debugCallback, 0xC0, glui::mods::CTRL);
-	win->setBackgroundColor({0.25, 0.75, 1, 1});
-	
-	auto file = win->getMenu()->submenu("&File");
-	file->item("&Open\tCtrl+O", openCallback);
-	file->item("&Save\tCtrl+S", openCallback);
-	file->item("Save &As\tCtrl+Shift+S", openCallback);
-	file->refresh();
+	win->setBackgroundColor({ 0.25, 0.75, 1, 1 });
+
+	setupMenuBar(win);
 
 	while (win->isRunning()) {
 		ctx->pollEvents();

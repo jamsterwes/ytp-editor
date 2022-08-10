@@ -27,7 +27,9 @@ LRESULT CALLBACK glui::GLUIWndProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
         break;
     case WM_COMMAND:
         if (_this->_menuCallbacks.find(wParam) != _this->_menuCallbacks.end() && _this->_menu) {
-            _this->_menuCallbacks[wParam](_this);
+            if (_this->_menuCallbacks[wParam]) {
+                _this->_menuCallbacks[wParam](_this);
+            }
         }
         break;
     default:

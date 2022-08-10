@@ -12,7 +12,9 @@ namespace glui {
 		~Window();
 
 		// Menus
-		void setMenu(IMenu* menu) override;
+		IMenu* getMenu();
+		void registerCallback(uint64_t id, GLUIMenuItemCallback cb);
+		void refreshMenu();
 
 		// Subwindow(s)
 		IWindow* newModal(std::string title, int width, int height) override;
@@ -37,7 +39,8 @@ namespace glui {
 		friend LRESULT __stdcall GLUIWndProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	protected:
 		// Menus
-		IMenu* _menu;
+		class Menu* _menu;
+		std::unordered_map<uint64_t, GLUIMenuItemCallback> _menuCallbacks;
 
 		// Window Properties
 		std::string _title;

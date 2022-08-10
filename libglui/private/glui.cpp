@@ -31,7 +31,6 @@ namespace glui {
 		Context();
 		~Context();
 		IWindow* newWindow(std::string title, int width, int height) override;
-		IMenu* newMenu() override;
 		void pollEvents() override;
 		std::string openFileDialog(std::initializer_list<std::pair<std::string, std::string>> types) override;
 	private:
@@ -51,10 +50,6 @@ namespace glui {
 
 	IWindow* Context::newWindow(std::string title, int width, int height) {
 		return new Window(title, width, height);
-	}
-
-	IMenu* Context::newMenu() {
-		return new Menu();
 	}
 
 	void Context::pollEvents() {

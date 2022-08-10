@@ -20,7 +20,6 @@ namespace glui {
 	class GLUI_INTERFACE IContext {
 	public:
 		virtual IWindow* newWindow(std::string title, int width, int height) = 0;
-		virtual IMenu* newMenu() = 0;
 		virtual void pollEvents() = 0;
 
 		// Win32 wrappers

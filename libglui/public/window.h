@@ -27,7 +27,7 @@ namespace glui {
 	class GLUI_INTERFACE IWindow {
 	public:
 		// Menus
-		virtual void setMenu(class IMenu* menu) = 0;
+		virtual class IMenu* getMenu() = 0;
 
 		// Subwindow(s)
 		virtual IWindow* newModal(std::string title, int width, int height) = 0;

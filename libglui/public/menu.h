@@ -3,14 +3,13 @@
 
 namespace glui {
 
-	typedef void (*IMenuItemCallback)(class IMenu*);
+	typedef void (*GLUIMenuItemCallback)(class IWindow*);
 
 	class GLUI_INTERFACE IMenu {
 	public:
-		virtual void addItem(std::string label, IMenuItemCallback cb) = 0;
-		virtual void addItem(std::string label, IMenu* item) = 0;
-		virtual void addSeparator() = 0;
-		virtual void* getHandle() = 0;
-		virtual void callback(uint64_t id) = 0;
+		virtual void item(std::string label, GLUIMenuItemCallback cb) = 0;
+		virtual IMenu* submenu(std::string label) = 0;
+		virtual void separator() = 0;
+		virtual void refresh() = 0;
 	};
 }

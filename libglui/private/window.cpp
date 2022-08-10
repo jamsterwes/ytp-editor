@@ -1,5 +1,6 @@
 #include "private/window.h"
 #include "private/modalwindow.h"
+#include "private/menu.h"
 #include <gl/GL.h>
 
 using namespace glui;
@@ -25,8 +26,8 @@ LRESULT CALLBACK glui::GLUIWndProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
         }
         break;
     case WM_COMMAND:
-        if (_this->_menu) {
-            _this->_menu->callback(wParam);
+        if (_this->_menuCallbacks.find(wParam) != _this->_menuCallbacks.end() && _this->_menu) {
+            _this->_menuCallbacks[wParam](_this);
         }
         break;
     default:
@@ -35,16 +36,11 @@ LRESULT CALLBACK glui::GLUIWndProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
     return 0;
 }
 
-Window::Window(std::string title, int width, int height) : 
-    _menu(nullptr),
-    _title(title),
-    _width(width),
-    _height(height),
-    _running(true),
-    _debugConsole(false),
-    _clearColor(0, 0, 0, 1),
-    _keyCallback(nullptr),
-    _shortcutCallbacks() {
+Window::Window(std::string title, int width, int height) : Window() {
+
+    _title = title;
+    _width = width;
+    _height = height;
 
     HRESULT hr = S_OK;
     HINSTANCE hInstance = (HINSTANCE)GetModuleHandle(NULL);
@@ -98,9 +94,20 @@ Window::~Window() {
     wglDeleteContext(_glCtx);
 }
 
-void Window::setMenu(IMenu* menu) {
-    _menu = menu;
-    SetMenu(_window, (HMENU)menu->getHandle());
+IMenu* Window::getMenu() {
+    if (_menu == nullptr) {
+        _menu = new Menu(this);
+        SetMenu(_window, _menu->getHandle());
+    }
+    return _menu;
+}
+
+void Window::registerCallback(uint64_t id, GLUIMenuItemCallback cb) {
+    _menuCallbacks.insert({ id, cb });
+}
+
+void Window::refreshMenu() {
+    DrawMenuBar(_window);
 }
 
 IWindow* Window::newModal(std::string title, int width, int height) {

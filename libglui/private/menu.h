@@ -1,5 +1,6 @@
 #pragma once
 #include "public/glui.h"
+#include "private/window.h"
 #include <unordered_map>
 #include <Windows.h>
 
@@ -7,17 +8,21 @@ namespace glui {
 
 	class Menu : public IMenu {
 	public:
-		Menu();
+		Menu(Window* window);
 		~Menu();
-		void addItem(std::string label, IMenuItemCallback cb) override;
-		void addItem(std::string label, IMenu* item) override;
-		void addSeparator() override;
-		void* getHandle() override;
-		void callback(uint64_t id) override;
+
+		// Overrides
+		void item(std::string label, GLUIMenuItemCallback cb) override;
+		IMenu* submenu(std::string label) override;
+		void separator() override;
+		void refresh() override;
+
+		// Internals
+		HMENU getHandle();
 	private:
+		Window* _window;
 		HMENU _menu;
 		std::vector<IMenu*> _submenus;
-		std::unordered_map<uint64_t, IMenuItemCallback> _itemCallbacks;
 	};
 
 }

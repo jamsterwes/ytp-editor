@@ -4,48 +4,55 @@ using namespace glui;
 
 static uint64_t nextMenuID = 1;
 
-Menu::Menu() : _submenus(), _itemCallbacks() {
+Menu::Menu(Window* window) : _window(window), _submenus() {
 	_menu = CreateMenu();
 }
 
 Menu::~Menu() {
+	// Delete all submenus
+	for (auto* submenu : _submenus) {
+		delete submenu;
+	}
+
+	// Delete this menu
 	DestroyMenu(_menu);
 }
 
-void Menu::addItem(std::string label, IMenuItemCallback cb) {
+void Menu::item(std::string label, GLUIMenuItemCallback cb) {
 	// Get next id
 	uint64_t id = nextMenuID++;
 
-	// Insert callback
-	_itemCallbacks.insert({ id, cb });
+	// Register menu callback
+	_window->registerCallback(id, cb);
 
 	// Insert menu item
 	AppendMenu(_menu, MF_STRING, id, label.c_str());
 }
 
-void Menu::addItem(std::string label, IMenu* item) {
+IMenu* Menu::submenu(std::string label) {
+	// Create submenu
+	Menu* sub = new Menu(_window);
+
 	// Insert submenu
-	_submenus.push_back(item);
+	_submenus.push_back(sub);
 	
 	// Insert menu item
-	AppendMenu(_menu, MF_POPUP, (UINT_PTR)item->getHandle(), label.c_str());
+	AppendMenu(_menu, MF_POPUP, (UINT_PTR)sub->_menu, label.c_str());
+
+	// Return new menu
+	return sub;
 }
 
-void Menu::addSeparator() {
+void Menu::separator() {
 	// Insert menu separator
 	AppendMenu(_menu, MF_SEPARATOR, 0, nullptr);
 }
 
-void* Menu::getHandle() {
-	return _menu;
+void Menu::refresh() {
+	// Refresh menu
+	_window->refreshMenu();
 }
 
-void Menu::callback(uint64_t id) {
-	if (_itemCallbacks.find(id) != _itemCallbacks.end()) {
-		_itemCallbacks[id](this);
-	} else {
-		for (auto submenu : _submenus) {
-			submenu->callback(id);
-		}
-	}
+HMENU Menu::getHandle() {
+	return _menu;
 }

@@ -23,12 +23,15 @@
     <ClCompile Include="private\glui.cpp" />
     <ClCompile Include="private\menu.cpp" />
     <ClCompile Include="private\modalwindow.cpp" />
+    <ClCompile Include="private\quad.cpp" />
     <ClCompile Include="private\window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="private\menu.h" />
     <ClInclude Include="private\modalwindow.h" />
+    <ClInclude Include="private\quad.h" />
     <ClInclude Include="private\window.h" />
+    <ClInclude Include="public\drawable.h" />
     <ClInclude Include="public\glui.h" />
     <ClInclude Include="public\menu.h" />
     <ClInclude Include="public\types.h" />

@@ -50,7 +50,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	win->setShortcutCallback(openCallback, 'O', glui::mods::CTRL);
 	win->setShortcutCallback(saveCallback, 'S', glui::mods::CTRL);
 	win->setShortcutCallback(debugCallback, 0xC0, glui::mods::CTRL);
-	win->setBackgroundColor({ 0.25, 0.75, 1, 1 });
+	win->setBackgroundColor({ 0.15, 0.15, 0.15, 1 });
 
 	setupMenuBar(win);
 

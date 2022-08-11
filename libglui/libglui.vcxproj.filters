@@ -36,6 +36,9 @@
     <ClCompile Include="private\menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="private\quad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="public\glui.h">
@@ -57,6 +60,12 @@
       <Filter>Header Files\public</Filter>
     </ClInclude>
     <ClInclude Include="private\menu.h">
+      <Filter>Header Files\private</Filter>
+    </ClInclude>
+    <ClInclude Include="public\drawable.h">
+      <Filter>Header Files\public</Filter>
+    </ClInclude>
+    <ClInclude Include="private\quad.h">
       <Filter>Header Files\private</Filter>
     </ClInclude>
   </ItemGroup>

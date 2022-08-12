@@ -25,6 +25,8 @@ void testingCallback(glui::IMenu* menu) {
 }
 
 void drawStage(glui::IQuadRenderer* renderer) {
+	auto videoColor = glui::color::fromHex("99ddff");
+
 	// Draw tab drawer
 	float tabDrawerHeight = 35;
 	renderer->add(
@@ -63,7 +65,7 @@ void drawStage(glui::IQuadRenderer* renderer) {
 	renderer->add(
 		{ 336 + stageMargin, 232 + stageMargin },
 		{ 930 - 2 * stageMargin, 663 - 232 - 2 * stageMargin - tabDrawerHeight },
-		{ 1, 1, 1, 1 },
+		videoColor,
 		0
 	);
 }
@@ -78,6 +80,12 @@ void drawTimeline(glui::IQuadRenderer* renderer) {
 		glui::color::fromHex("c175f0"),
 		glui::color::fromHex("7d75f0")
 	};
+	glui::types::color labelPalette[4] = {
+		glui::color::fromHex("0088bb"),
+		glui::color::fromHex("666666"),
+		glui::color::fromHex("666666"),
+		glui::color::fromHex("94cbe0"),
+	};
 
 	// Draw timeline
 	renderer->add(
@@ -90,42 +98,68 @@ void drawTimeline(glui::IQuadRenderer* renderer) {
 	// Draw video tracks
 	int tracks = 6;
 	float margin = 1;
-	float width = 930 - margin * 2;
-	float height = (232 - (margin * (tracks + 1))) / (float)tracks;
 
 	float iconSize = 20;
+	float labelSize = 40;
+	float labelMargin = 2;
+	int labelIcons = 3;
+	float labelWidth = labelSize * labelIcons + labelMargin * (labelIcons + 1);
+
+	float width = 930 - margin * 2 - labelWidth;
+	float height = (232 - (margin * (tracks + 1))) / (float)tracks;
 	
 	srand(time(NULL));
 	for (int i = 0; i < tracks; i++) {
+
+		// Draw "label"
+		for (int l = 0; l < labelIcons; l++) {
+			renderer->add(
+				{ 336 + margin * 2 + labelMargin * (l + 1) + labelSize * l, margin * (i + 1) + height * i + labelMargin},
+				{ labelSize - labelMargin * 2, labelSize - labelMargin * 2 },
+				labelPalette[i == (tracks - 1) ? l : ((l == 0) ? 3 : l)],
+				(l == 0) ? (labelSize - labelMargin * 2) / 2 : 6
+			);
+		}
+
 		// Draw background
 		renderer->add(
-			{ 336 + margin, margin * (i + 1) + height * i },
+			{ 336 + margin + labelWidth, margin * (i + 1) + height * i },
 			{ width, height },
 			{ 0.25, 0.25, 0.25, 1 },
 			0
 		);
 
-		// Draw video track
-		int trackWidth = (rand() / (float)RAND_MAX) * (width - iconSize * 2) + iconSize * 2;
-		int trackOffset = (rand() / (float)RAND_MAX) * (width - trackWidth);
-		int colorIdx = (int)((rand() / (float)RAND_MAX) * 5);
-		renderer->add(
-			{ 336 + margin + trackOffset, margin * (i + 1) + height * i},
-			{ (float)trackWidth, height },
-			trackPalette[colorIdx],
-			0
-		);
-
-		// Draw track "icon"
+		// Get dark palette color
+		int colorIdx = rand() % 6;
 		auto colorDark = trackPalette[colorIdx];
 		colorDark.x *= 0.5f;
 		colorDark.y *= 0.5f;
 		colorDark.z *= 0.5f;
+
+		// Draw video track stroke
+		int trackWidth = (rand() / (float)RAND_MAX) * (width - iconSize * 2) + iconSize * 2;
+		int trackOffset = (rand() / (float)RAND_MAX) * (width - trackWidth) + labelWidth;
+		renderer->add(
+			{ 336 + margin + trackOffset, margin * (i + 1) + height * i },
+			{ (float)trackWidth, height },
+			colorDark,
+			6
+		);
+
+		// Draw video track
+		renderer->add(
+			{ 336 + margin + trackOffset + 1, margin * (i + 1) + height * i + 1},
+			{ (float)trackWidth - 2, height - 2 },
+			trackPalette[colorIdx],
+			5
+		);
+
+		// Draw track "icon"
 		renderer->add(
 			{ 336 + margin + trackOffset + (height / 2 - iconSize / 2), margin * (i + 1) + height * i + (height / 2 - iconSize / 2)},
 			{ iconSize, iconSize },
 			colorDark,
-			0
+			iconSize / 2
 		);
 	}
 }
@@ -147,7 +181,7 @@ void drawFiles(glui::IQuadRenderer* renderer) {
 	int filesx = 4;
 	int filesy = 3;
 	glui::types::vec2 margin { 20, 30 };
-	glui::types::vec2 tabSize{ 32, 12 };
+	glui::types::vec2 tabSize{ 29, 12 };
 	float tabDip = 6.0f;
 	// Calc width/height
 	float width = (336 - margin.x * (filesx + 1)) / filesx;

@@ -44,6 +44,8 @@ in vec2 cornerCut;
 in vec2 uv;
 in vec4 color;
 
+uniform vec2 resolution;
+
 out vec4 out_color;
 
 float cornerNorm(vec2 _uv, vec2 _cornerCut) {
@@ -58,20 +60,30 @@ float rescale(vec2 start, vec2 end, float t) {
 }
 
 float fakeAA(float t) {
-	return clamp(rescale(vec2(1, 1 + 0.0125), vec2(1, 0), t), 0, 1);
+	return clamp(rescale(vec2(1 - 0.025, 1 + 0.025), vec2(1, 0), t), 0, 1);
+}
+
+float alphaSample(vec2 _uv) {
+	float alpha = 1;
+    if (_uv.x > (1 - cornerCut.x) && _uv.y > (1 - cornerCut.y)) {
+		alpha = fakeAA(cornerNorm(_uv, cornerCut));
+	} else if (_uv.x < -(1 - cornerCut.x) && _uv.y > (1 - cornerCut.y)) {
+		alpha = fakeAA(cornerNorm(_uv * vec2(-1,1), cornerCut));
+	} else if (_uv.x < -(1 - cornerCut.x) && _uv.y < -(1 - cornerCut.y)) {
+		alpha = fakeAA(cornerNorm(_uv * vec2(-1,-1), cornerCut));
+	} else if (_uv.x > (1 - cornerCut.x) && _uv.y < -(1 - cornerCut.y)) {
+		alpha = fakeAA(cornerNorm(_uv * vec2(1,-1), cornerCut));
+	}
+    return alpha;
 }
 
 void main() {
-	float alpha = 1;
-	if (uv.x > (1 - cornerCut.x) && uv.y > (1 - cornerCut.y)) {
-		alpha = fakeAA(cornerNorm(uv, cornerCut));
-	} else if (uv.x < -(1 - cornerCut.x) && uv.y > (1 - cornerCut.y)) {
-		alpha = fakeAA(cornerNorm(uv * vec2(-1,1), cornerCut));
-	} else if (uv.x < -(1 - cornerCut.x) && uv.y < -(1 - cornerCut.y)) {
-		alpha = fakeAA(cornerNorm(uv * vec2(-1,-1), cornerCut));
-	} else if (uv.x > (1 - cornerCut.x) && uv.y < -(1 - cornerCut.y)) {
-		alpha = fakeAA(cornerNorm(uv * vec2(1,-1), cornerCut));
-	}
+	vec2 pixel = vec2(2 / resolution.x, 2 / resolution.y);
+	float alpha = alphaSample(uv + pixel * vec2(-0.5, -0.5));
+	alpha += alphaSample(uv + pixel * vec2(0.5, -0.5));
+	alpha += alphaSample(uv + pixel * vec2(-0.5, 0.5));
+	alpha += alphaSample(uv + pixel * vec2(0.5, 0.5));
+	alpha /= 4;
 	out_color = vec4(color.rgb, alpha * color.a);
 }
 )";

@@ -15,6 +15,7 @@
 #include "types.h"
 #include "window.h"
 #include "menu.h"
+#include "quadrenderer.h"
 
 namespace glui {
 	class GLUI_INTERFACE IContext {
@@ -28,4 +29,8 @@ namespace glui {
 
 	GLUI_API IContext* init();
 	GLUI_API void destroy(IContext* ctx);
+
+	namespace color {
+		GLUI_API types::color fromHex(const char* code);
+	}
 }

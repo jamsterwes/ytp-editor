@@ -18,6 +18,5 @@ namespace glui {
 			vec4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 		};
 		typedef vec4 color;
-
 	}
 }

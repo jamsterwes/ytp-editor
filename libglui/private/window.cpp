@@ -1,14 +1,12 @@
 #include "private/window.h"
 #include "private/modalwindow.h"
 #include "private/menu.h"
-#include "private/quad.h"
+#include "private/quadrenderer.h"
 #include <gl/glew.h>
 #include <gl/GL.h>
+#include <gl/wglew.h>
 
 using namespace glui;
-
-IDrawable* _quad;
-IDrawable* _quad2;
 
 LRESULT CALLBACK glui::GLUIWndProcA(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	Window* _this = (Window*)GetWindowLongPtrA(hwnd, GWLP_USERDATA);
@@ -75,9 +73,12 @@ Window::Window(std::string title, int width, int height) : Window() {
 
 	// Initialize OpenGL
 	_initializeOpenGL();
+	
+	// Get width/height
+	RECT rect;
+	GetClientRect(_window, &rect);
 
-	_quad = new Quad({ 0,0 }, { 0.75,0.75 }, { 1,0,0,0.5 });
-	_quad2 = new Quad({ 0.125,0.125 }, { 0.75,0.75 }, { 0,0,1,0.5 });
+	_quadRenderer = new QuadRenderer(rect.right - rect.left, rect.bottom - rect.top);
 
 	// Show window
 	ShowWindow(_window, SW_SHOW);
@@ -169,11 +170,14 @@ void Window::render() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Draw
-	_quad->draw();
-	_quad2->draw();
+	_quadRenderer->draw();
 
 	// Swap buffers
 	wglSwapLayerBuffers(_drawCtx, WGL_SWAP_MAIN_PLANE);
+}
+
+IQuadRenderer* Window::getQuadRenderer() {
+	return _quadRenderer;
 }
 
 void Window::fromCreated(HWND createdWindow) {
@@ -274,6 +278,11 @@ void Window::_initializeOpenGL() {
 	// Init blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	// Print real screen size
+	RECT rect;
+	GetClientRect(_window, &rect);
+	printf("Height: %d\nWidth: %d\n", rect.bottom - rect.top, rect.right - rect.left);
 
 	// Clear to color
 	glClearColor(0, 0, 0, 1);

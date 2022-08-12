@@ -36,7 +36,10 @@
     <ClCompile Include="private\menu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="private\quad.cpp">
+    <ClCompile Include="private\quadrenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="private\types.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,10 +65,10 @@
     <ClInclude Include="private\menu.h">
       <Filter>Header Files\private</Filter>
     </ClInclude>
-    <ClInclude Include="public\drawable.h">
+    <ClInclude Include="public\quadrenderer.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
-    <ClInclude Include="private\quad.h">
+    <ClInclude Include="private\quadrenderer.h">
       <Filter>Header Files\private</Filter>
     </ClInclude>
   </ItemGroup>

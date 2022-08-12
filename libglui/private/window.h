@@ -32,6 +32,7 @@ namespace glui {
 		// Rendering
 		void setBackgroundColor(types::color col) override;
 		void render() override;
+		IQuadRenderer* getQuadRenderer() override;
 
 		static void registerWindowClass();
 		static void unregisterWindowClass();
@@ -55,6 +56,7 @@ namespace glui {
 		HWND _window, _consoleWindow;
 		HDC _drawCtx;
 		HGLRC _glCtx;
+		IQuadRenderer* _quadRenderer;
 
 		// Callbacks
 		GLUIKeyCallback _keyCallback;

@@ -73,5 +73,6 @@ namespace glui {
 		// Rendering
 		virtual void setBackgroundColor(types::color col) = 0;
 		virtual void render() = 0;
+		virtual class IQuadRenderer* getQuadRenderer() = 0;
 	};
 }

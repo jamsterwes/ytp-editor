@@ -1,7 +1,7 @@
 #include "private/window.h"
 #include "private/modalwindow.h"
 #include "private/menu.h"
-#include "private/quadrenderer.h"
+#include "private/uilayer.h"
 #include <gl/glew.h>
 #include <gl/GL.h>
 #include <gl/wglew.h>
@@ -78,8 +78,6 @@ Window::Window(std::string title, int width, int height) : Window() {
 	RECT rect;
 	GetClientRect(_window, &rect);
 
-	_quadRenderer = new QuadRenderer(rect.right - rect.left, rect.bottom - rect.top);
-
 	// Show window
 	ShowWindow(_window, SW_SHOW);
 }
@@ -97,10 +95,16 @@ Window::Window() :
 	_drawCtx(nullptr),
 	_glCtx(nullptr),
 	_keyCallback(nullptr),
-	_shortcutCallbacks() {
+	_shortcutCallbacks(),
+	_uiLayers() {
 }
 
 Window::~Window() {
+	for (auto bin : _uiLayers) {
+		for (auto layer : bin.second) {
+			delete layer;
+		}
+	}
 	wglMakeCurrent(nullptr, nullptr);
 	wglDeleteContext(_glCtx);
 }
@@ -169,15 +173,26 @@ void Window::render() {
 	glClearColor(_clearColor.x, _clearColor.y, _clearColor.z, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// Draw
-	_quadRenderer->draw();
+	// Draw UI layers
+	for (auto bin : _uiLayers) {
+		for (auto layer : bin.second) {
+			layer->draw();
+		}
+	}
 
 	// Swap buffers
 	wglSwapLayerBuffers(_drawCtx, WGL_SWAP_MAIN_PLANE);
 }
 
-IQuadRenderer* Window::getQuadRenderer() {
-	return _quadRenderer;
+IUILayer* Window::addLayer(int zIndex) {
+	RECT rect;
+	GetClientRect(_window, &rect);
+	if (_uiLayers.find(zIndex) == _uiLayers.end()) {
+		_uiLayers.insert({ zIndex, {} });
+	}
+	auto layer = new UILayer(rect.right - rect.left, rect.bottom - rect.top);
+	_uiLayers[zIndex].push_back(layer);
+	return layer;
 }
 
 void Window::fromCreated(HWND createdWindow) {

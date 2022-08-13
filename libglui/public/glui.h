@@ -16,6 +16,7 @@
 #include "window.h"
 #include "menu.h"
 #include "quadrenderer.h"
+#include "uilayer.h"
 
 namespace glui {
 	class GLUI_INTERFACE IContext {

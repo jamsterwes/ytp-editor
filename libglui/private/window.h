@@ -2,6 +2,8 @@
 #include "public/glui.h"
 #include <Windows.h>
 #include <unordered_map>
+#include <map>
+#include <vector>
 
 namespace glui {
 
@@ -32,7 +34,7 @@ namespace glui {
 		// Rendering
 		void setBackgroundColor(types::color col) override;
 		void render() override;
-		IQuadRenderer* getQuadRenderer() override;
+		class IUILayer* addLayer(int zIndex) override;
 
 		static void registerWindowClass();
 		static void unregisterWindowClass();
@@ -56,7 +58,7 @@ namespace glui {
 		HWND _window, _consoleWindow;
 		HDC _drawCtx;
 		HGLRC _glCtx;
-		IQuadRenderer* _quadRenderer;
+		std::map<int, std::vector<class IUILayer*>> _uiLayers;
 
 		// Callbacks
 		GLUIKeyCallback _keyCallback;

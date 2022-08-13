@@ -19,57 +19,84 @@
     <Filter Include="Header Files\private">
       <UniqueIdentifier>{e29f3893-680a-41ce-8202-8a24217bbd4f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\public\rendering">
+      <UniqueIdentifier>{3bbfeb08-e4e8-48c6-8f30-0659775f426a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\private\rendering">
+      <UniqueIdentifier>{3ca2fbe6-06be-4a73-84d8-83ef65592f2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\rendering">
+      <UniqueIdentifier>{4b9146c3-cb22-4e39-b3bb-5347a8e4a640}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\windowing">
+      <UniqueIdentifier>{00ac3ecb-da0d-4020-b475-3c1221fc0fe5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\private\windowing">
+      <UniqueIdentifier>{ad7bf244-8018-4468-9fc1-c14c6399e158}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\public\windowing">
+      <UniqueIdentifier>{8ed00c3d-749d-4fd8-b30a-8216f0e9a010}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private\glui.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="private\window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="private\modalwindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="private\menu.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="private\quadrenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="private\types.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="private\quadrenderer.cpp">
+      <Filter>Source Files\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="private\modalwindow.cpp">
+      <Filter>Source Files\windowing</Filter>
+    </ClCompile>
+    <ClCompile Include="private\window.cpp">
+      <Filter>Source Files\windowing</Filter>
+    </ClCompile>
+    <ClCompile Include="private\menu.cpp">
+      <Filter>Source Files\windowing</Filter>
+    </ClCompile>
+    <ClCompile Include="private\uilayer.cpp">
+      <Filter>Source Files\rendering</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="public\glui.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
-    <ClInclude Include="public\window.h">
-      <Filter>Header Files\public</Filter>
-    </ClInclude>
-    <ClInclude Include="private\window.h">
-      <Filter>Header Files\private</Filter>
-    </ClInclude>
     <ClInclude Include="public\types.h">
       <Filter>Header Files\public</Filter>
     </ClInclude>
-    <ClInclude Include="private\modalwindow.h">
-      <Filter>Header Files\private</Filter>
-    </ClInclude>
-    <ClInclude Include="public\menu.h">
-      <Filter>Header Files\public</Filter>
-    </ClInclude>
-    <ClInclude Include="private\menu.h">
-      <Filter>Header Files\private</Filter>
-    </ClInclude>
     <ClInclude Include="public\quadrenderer.h">
-      <Filter>Header Files\public</Filter>
+      <Filter>Header Files\public\rendering</Filter>
     </ClInclude>
     <ClInclude Include="private\quadrenderer.h">
-      <Filter>Header Files\private</Filter>
+      <Filter>Header Files\private\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="public\uilayer.h">
+      <Filter>Header Files\public\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="private\uilayer.h">
+      <Filter>Header Files\private\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="private\modalwindow.h">
+      <Filter>Header Files\private\windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="private\window.h">
+      <Filter>Header Files\private\windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="public\window.h">
+      <Filter>Header Files\public\windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="public\menu.h">
+      <Filter>Header Files\public\windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="private\menu.h">
+      <Filter>Header Files\private\windowing</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

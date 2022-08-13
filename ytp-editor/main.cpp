@@ -24,13 +24,20 @@ void testingCallback(glui::IMenu* menu) {
 	printf("Testing...\n");
 }
 
-void drawStage(glui::IQuadRenderer* renderer) {
+
+glui::IUILayer* drawStage(glui::IWindow* win) {
+	// Get UI layer
+	auto stageLayer = win->addLayer(1);
+	auto renderer = stageLayer->getQuadRenderer();
+
 	auto videoColor = glui::color::fromHex("99ddff");
+
+	float fakeHeight = 641;
 
 	// Draw tab drawer
 	float tabDrawerHeight = 35;
 	renderer->add(
-		{ 336, 663 - tabDrawerHeight },
+		{ 336, fakeHeight - tabDrawerHeight },
 		{ 930, tabDrawerHeight },
 		{ 0.08, 0.08, 0.08, 1 },
 		0
@@ -38,7 +45,7 @@ void drawStage(glui::IQuadRenderer* renderer) {
 
 	// Draw tab drawer stroke
 	renderer->add(
-		{ 336 + 1, 663 - tabDrawerHeight + 1 },
+		{ 336 + 1, fakeHeight - tabDrawerHeight + 1 },
 		{ 930 - 2, tabDrawerHeight - 2 },
 		{ 0.1, 0.1, 0.1, 1 },
 		0
@@ -47,7 +54,7 @@ void drawStage(glui::IQuadRenderer* renderer) {
 	// Draw stage stroke
 	renderer->add(
 		{ 336, 232 },
-		{ 930, 663 - 232 - tabDrawerHeight },
+		{ 930, fakeHeight - 232 - tabDrawerHeight },
 		{ 0.11, 0.11, 0.11, 1 },
 		0
 	);
@@ -55,7 +62,7 @@ void drawStage(glui::IQuadRenderer* renderer) {
 	// Draw stage
 	renderer->add(
 		{ 336 + 1, 232 + 1 },
-		{ 930 - 2, 663 - 232 - 2 - tabDrawerHeight },
+		{ 930 - 2, fakeHeight - 232 - 2 - tabDrawerHeight },
 		{ 0.125, 0.125, 0.125, 1 },
 		0
 	);
@@ -64,13 +71,19 @@ void drawStage(glui::IQuadRenderer* renderer) {
 	float stageMargin = 10;
 	renderer->add(
 		{ 336 + stageMargin, 232 + stageMargin },
-		{ 930 - 2 * stageMargin, 663 - 232 - 2 * stageMargin - tabDrawerHeight },
+		{ 930 - 2 * stageMargin, fakeHeight - 232 - 2 * stageMargin - tabDrawerHeight },
 		videoColor,
 		0
 	);
+
+	return stageLayer;
 }
 
-void drawTimeline(glui::IQuadRenderer* renderer) {
+glui::IUILayer* drawTimeline(glui::IWindow* win) {
+	// Get UI layer
+	auto timelineLayer = win->addLayer(0);
+	auto renderer = timelineLayer->getQuadRenderer();
+
 	// Color palette
 	glui::types::color trackPalette[6] = {
 		glui::color::fromHex("75f07b"),
@@ -162,9 +175,15 @@ void drawTimeline(glui::IQuadRenderer* renderer) {
 			iconSize / 2
 		);
 	}
+
+	return timelineLayer;
 }
 
-void drawFiles(glui::IQuadRenderer* renderer) {
+glui::IUILayer* drawFiles(glui::IWindow* win) {
+	// Get UI layer
+	auto fileLayer = win->addLayer(0);
+	auto renderer = fileLayer->getQuadRenderer();
+
 	// Color palette
 	auto file = glui::color::fromHex("fff2ab");
 	auto fileStroke = glui::color::fromHex("635e43");
@@ -218,6 +237,8 @@ void drawFiles(glui::IQuadRenderer* renderer) {
 			);
 		}
 	}
+
+	return fileLayer;
 }
 
 void setupMenuBar(glui::IWindow* win) {
@@ -252,13 +273,13 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	setupMenuBar(win);
 
 	// Draw timeline
-	drawTimeline(win->getQuadRenderer());
+	auto timelineLayer = drawTimeline(win);
 
 	// Draw stage
-	drawStage(win->getQuadRenderer());
+	auto stageLayer = drawStage(win);
 
 	// Draw files
-	drawFiles(win->getQuadRenderer());
+	auto fileLayer = drawFiles(win);
 
 	while (win->isRunning()) {
 		ctx->pollEvents();

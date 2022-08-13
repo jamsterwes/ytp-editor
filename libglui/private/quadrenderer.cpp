@@ -26,65 +26,65 @@ layout (location = 4) in float borderRadius;
 
 uniform vec2 resolution;
 
-out vec2 cornerCut;
-out vec2 uv;
+out float rad;
+out vec2 px;
+out vec2 osize;
+out vec2 origin;
 out vec4 color;
 
 void main() {
-	cornerCut = vec2(2 * borderRadius / (size.x), 2 * borderRadius / (size.y));
-	uv = pos;
+	px = (pos * 0.5 + 0.5) * resolution;
+	// px = (pos * 0.5 + 0.5) * size + offset;
+	rad = borderRadius;
+	origin = offset;
 	color = icolor;
-    gl_Position = vec4(((pos + 1) / 2) * vec2(2 * size.x / resolution.x, 2 * size.y / resolution.y) + vec2(2 * offset.x / resolution.x, 2 * offset.y / resolution.y) - vec2(1, 1), 0.0, 1.0);
+	osize = size;
+	gl_Position = vec4(pos, 0, 1);
+    // gl_Position = vec4(((pos + 1) / 2) * vec2(2 * size.x / resolution.x, 2 * size.y / resolution.y) + vec2(2 * offset.x / resolution.x, 2 * offset.y / resolution.y) - vec2(1, 1), 0.0, 1.0);
 }
 )";
 
 static const char* fragment_shader_quad = R"(#version 420
 
-in vec2 cornerCut;
-in vec2 uv;
+in float rad;
+in vec2 px;
+in vec2 origin;
+in vec2 osize;
 in vec4 color;
 
 uniform vec2 resolution;
 
 out vec4 out_color;
 
-float cornerNorm(vec2 _uv, vec2 _cornerCut) {
-	vec2 norm = _uv - 1 + _cornerCut;
-	norm = vec2(norm.x / _cornerCut.x, norm.y / _cornerCut.y);
-	return distance(vec2(0,0), norm);
-}
+float sdf(vec2 v, vec2 org, vec2 size) {
+	vec2 root = v - org - size / 2;
+	float xmax = (size.x / 2) - rad;
+	float ymax = (size.y / 2) - rad;
 
-float rescale(vec2 start, vec2 end, float t) {
-	float n = (t - start.x) / (start.y - start.x);
-	return end.x + smoothstep(0, 1, n) * (end.y - end.x);
-}
+	if (root.x < xmax && root.x > -xmax || root.y < ymax && root.y > -ymax) {
+		// Axis-aligned distance
+		vec2 Z = abs(root) - size / 2;
+		return max(Z.x, Z.y);
+	} else {
+		// Rounded corners
+		vec2 c1 = vec2(xmax, ymax);
+		vec2 c2 = vec2(-xmax, ymax);
+		vec2 c3 = vec2(xmax, -ymax);
+		vec2 c4 = vec2(-xmax, -ymax);
 
-float fakeAA(float t) {
-	return clamp(rescale(vec2(1 - 0.025, 1 + 0.025), vec2(1, 0), t), 0, 1);
-}
-
-float alphaSample(vec2 _uv) {
-	float alpha = 1;
-    if (_uv.x > (1 - cornerCut.x) && _uv.y > (1 - cornerCut.y)) {
-		alpha = fakeAA(cornerNorm(_uv, cornerCut));
-	} else if (_uv.x < -(1 - cornerCut.x) && _uv.y > (1 - cornerCut.y)) {
-		alpha = fakeAA(cornerNorm(_uv * vec2(-1,1), cornerCut));
-	} else if (_uv.x < -(1 - cornerCut.x) && _uv.y < -(1 - cornerCut.y)) {
-		alpha = fakeAA(cornerNorm(_uv * vec2(-1,-1), cornerCut));
-	} else if (_uv.x > (1 - cornerCut.x) && _uv.y < -(1 - cornerCut.y)) {
-		alpha = fakeAA(cornerNorm(_uv * vec2(1,-1), cornerCut));
+		return min(
+			min(distance(root, c1), distance(root, c2)),
+			min(distance(root, c3), distance(root, c4))
+		) - rad;
 	}
-    return alpha;
 }
 
 void main() {
-	vec2 pixel = vec2(2 / resolution.x, 2 / resolution.y);
-	float alpha = alphaSample(uv + pixel * vec2(-0.5, -0.5));
-	alpha += alphaSample(uv + pixel * vec2(0.5, -0.5));
-	alpha += alphaSample(uv + pixel * vec2(-0.5, 0.5));
-	alpha += alphaSample(uv + pixel * vec2(0.5, 0.5));
-	alpha /= 4;
-	out_color = vec4(color.rgb, alpha * color.a);
+	float strokeWidth = 1;
+	float alphaBig = clamp(0.5 - sdf(px, origin - vec2(strokeWidth,strokeWidth), osize + 2*vec2(strokeWidth,strokeWidth)), 0, 1);
+	float alpha = clamp(0.5 - sdf(px, origin, osize), 0, 1);
+	//vec4 colorStroke = mix(color, vec4(1,1,1,1), 1 - alpha);
+	out_color = vec4(color.rgb, color.a * alpha);
 }
 )";
 

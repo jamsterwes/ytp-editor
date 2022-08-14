@@ -108,7 +108,7 @@ TextRenderer::TextRenderer(int width, int height) : _width(width), _height(heigh
 	}
 
 	// Load font
-	if (FT_New_Face(_ft, "fonts/SF-Pro.ttf", 0, &_face))
+	if (FT_New_Face(_ft, "fonts/Roboto-Regular.ttf", 0, &_face))
 	{
 		printf("Failed to load font!\n");
 	}

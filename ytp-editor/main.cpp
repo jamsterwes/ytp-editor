@@ -303,10 +303,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	setupMenuBar(win);
 
 	// Draw timeline
-	// auto timelineLayer = drawTimeline(win);
+	auto timelineLayer = drawTimeline(win);
 
 	// Draw stage
-	// auto stageLayer = drawStage(win);
+	auto stageLayer = drawStage(win);
 
 	// Draw files
 	auto fileLayer = drawFiles(win);

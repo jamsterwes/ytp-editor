@@ -33,8 +33,8 @@ out vec4 color;
 void main() {
 	color = icolor;
 	vec2 fake_uv = (pos * 0.5 + 0.5);
-	uv = fake_uv;
-	// uv = vec2(mix(uvbounds.x, uvbounds.y, fake_uv.x), mix(uvbounds.z, uvbounds.w, fake_uv.y));
+	// uv = fake_uv;
+	uv = vec2(mix(uvbounds.x, uvbounds.z, fake_uv.x), mix(uvbounds.w, uvbounds.y, fake_uv.y));
 	vec2 position = fake_uv * (2 * size / resolution) + 2 * offset / resolution - vec2(1, 1);
 	gl_Position = vec4(position, 0, 1);
 }
@@ -52,8 +52,7 @@ out vec4 out_color;
 
 void main() {
 	float alpha = texture2D(glyphTexture, uv).r;
-	// out_color = vec4(color.rgb, color.a * alpha);
-	out_color = vec4(uv,alpha,1);
+	out_color = vec4(color.rgb, color.a * alpha);
 }
 )";
 
@@ -136,7 +135,7 @@ void TextRenderer::generateAtlas() {
 	// Texture options
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	FT_GlyphSlot slot = _face->glyph;
@@ -176,6 +175,8 @@ void TextRenderer::generateAtlas() {
 			yptr += 128;
 		}
 	}
+
+	glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void TextRenderer::add(char c, types::vec2 pos, float size, types::color color) {

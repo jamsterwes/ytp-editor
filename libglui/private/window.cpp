@@ -272,39 +272,8 @@ void Window::_initializeOpenGL() {
 
 	_glCtx = glhelpers::createGLContext(_drawCtx);
 
-	//// TODO: check this for issues
-	//// Set pixel format for use by OpenGL
-	//PIXELFORMATDESCRIPTOR pfd = {
-	//sizeof(PIXELFORMATDESCRIPTOR),   // size of this pfd  
-	//	1,                     // version number  
-	//	PFD_DRAW_TO_WINDOW |   // support window  
-	//	PFD_SUPPORT_OPENGL |   // support OpenGL  
-	//	PFD_DOUBLEBUFFER,      // double buffered  
-	//	PFD_TYPE_RGBA,         // RGBA type  
-	//	24,                    // 24-bit color depth  
-	//	0, 0, 0, 0, 0, 0,      // color bits ignored  
-	//	0,                     // no alpha buffer  
-	//	0,                     // shift bit ignored  
-	//	0,                     // no accumulation buffer  
-	//	0, 0, 0, 0,            // accum bits ignored  
-	//	32,                    // 32-bit z-buffer  
-	//	0,                     // no stencil buffer  
-	//	0,                     // no auxiliary buffer  
-	//	PFD_MAIN_PLANE,        // main layer  
-	//	0,                     // reserved  
-	//	0, 0, 0                // layer masks ignored  
-	//};
-	//int formatIdx = ChoosePixelFormat(_drawCtx, &pfd);
-	//SetPixelFormat(_drawCtx, formatIdx, &pfd);
-
-	//// Create OpenGL ctx
-	//_glCtx = wglCreateContext(_drawCtx);
-
 	// Make context current
 	wglMakeCurrent(_drawCtx, _glCtx);
-
-	// GLEW load
-	glewInit();
 
 	// Set error callback
 	glEnable(GL_DEBUG_OUTPUT);

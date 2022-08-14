@@ -63,6 +63,9 @@
     <ClCompile Include="private\uilayer.cpp">
       <Filter>Source Files\rendering</Filter>
     </ClCompile>
+    <ClCompile Include="private\textrenderer.cpp">
+      <Filter>Source Files\rendering</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="public\glui.h">
@@ -97,6 +100,12 @@
     </ClInclude>
     <ClInclude Include="private\menu.h">
       <Filter>Header Files\private\windowing</Filter>
+    </ClInclude>
+    <ClInclude Include="private\textrenderer.h">
+      <Filter>Header Files\private\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="public\textrenderer.h">
+      <Filter>Header Files\public\rendering</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

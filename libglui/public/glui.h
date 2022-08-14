@@ -16,6 +16,7 @@
 #include "window.h"
 #include "menu.h"
 #include "quadrenderer.h"
+#include "textrenderer.h"
 #include "uilayer.h"
 
 namespace glui {

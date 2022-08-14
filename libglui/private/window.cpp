@@ -73,10 +73,6 @@ Window::Window(std::string title, int width, int height) : Window() {
 
 	// Initialize OpenGL
 	_initializeOpenGL();
-	
-	// Get width/height
-	RECT rect;
-	GetClientRect(_window, &rect);
 
 	// Show window
 	ShowWindow(_window, SW_SHOW);
@@ -252,6 +248,17 @@ void Window::_initializeConsole() {
 	SetForegroundWindow(_window);
 }
 
+void GLAPIENTRY
+MessageCallback(GLenum source,
+	GLenum type,
+	GLuint id,
+	GLenum severity,
+	GLsizei length,
+	const GLchar* message,
+	const void* userParam) {
+	printf("Error: %s\n", message);
+}
+
 void Window::_initializeOpenGL() {
 	// Create draw ctx
 	_drawCtx = GetDC(_window);
@@ -290,14 +297,21 @@ void Window::_initializeOpenGL() {
 	// GLEW load
 	glewInit();
 
+	// Set error callback
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(MessageCallback, 0);
+
 	// Init blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	// Print real screen size
+	// Print render size
 	RECT rect;
 	GetClientRect(_window, &rect);
 	printf("Height: %d\nWidth: %d\n", rect.bottom - rect.top, rect.right - rect.left);
+
+	// Set viewport
+	glViewport(rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
 
 	// Clear to color
 	glClearColor(0, 0, 0, 1);

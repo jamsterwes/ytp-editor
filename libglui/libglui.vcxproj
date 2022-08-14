@@ -24,6 +24,7 @@
     <ClCompile Include="private\menu.cpp" />
     <ClCompile Include="private\modalwindow.cpp" />
     <ClCompile Include="private\quadrenderer.cpp" />
+    <ClCompile Include="private\textrenderer.cpp" />
     <ClCompile Include="private\types.cpp" />
     <ClCompile Include="private\uilayer.cpp" />
     <ClCompile Include="private\window.cpp" />
@@ -32,11 +33,13 @@
     <ClInclude Include="private\menu.h" />
     <ClInclude Include="private\modalwindow.h" />
     <ClInclude Include="private\quadrenderer.h" />
+    <ClInclude Include="private\textrenderer.h" />
     <ClInclude Include="private\uilayer.h" />
     <ClInclude Include="private\window.h" />
     <ClInclude Include="public\quadrenderer.h" />
     <ClInclude Include="public\glui.h" />
     <ClInclude Include="public\menu.h" />
+    <ClInclude Include="public\textrenderer.h" />
     <ClInclude Include="public\types.h" />
     <ClInclude Include="public\uilayer.h" />
     <ClInclude Include="public\window.h" />

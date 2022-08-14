@@ -24,6 +24,8 @@ void testingCallback(glui::IMenu* menu) {
 	printf("Testing...\n");
 }
 
+const int WIDTH = 1920;
+const int HEIGHT = 1080;
 
 glui::IUILayer* drawStage(glui::IWindow* win) {
 	// Get UI layer
@@ -83,6 +85,7 @@ glui::IUILayer* drawTimeline(glui::IWindow* win) {
 	// Get UI layer
 	auto timelineLayer = win->addLayer(0);
 	auto renderer = timelineLayer->getQuadRenderer();
+	auto textRenderer = timelineLayer->getTextRenderer();
 
 	// Color palette
 	glui::types::color trackPalette[6] = {
@@ -134,6 +137,14 @@ glui::IUILayer* drawTimeline(glui::IWindow* win) {
 			);
 		}
 
+		// Draw V# label
+		textRenderer->add(
+			"V" + std::to_string(tracks - i),
+			{ 336 + margin * 2 + labelMargin + labelSize - 35, margin + height * i + labelMargin + 15 },
+			20.0f,
+			glui::color::fromHex("EEF6FF")
+		);
+
 		// Draw background
 		renderer->add(
 			{ 336 + margin + labelWidth, margin * (i + 1) + height * i },
@@ -172,7 +183,16 @@ glui::IUILayer* drawTimeline(glui::IWindow* win) {
 			{ 336 + margin + trackOffset + (height / 2 - iconSize / 2), margin * (i + 1) + height * i + (height / 2 - iconSize / 2)},
 			{ iconSize, iconSize },
 			colorDark,
-			iconSize / 2
+			6
+		);
+
+		// Draw icon text
+		float textSize = iconSize * 0.75;
+		textRenderer->add(
+			"FX",
+			{ 336 + margin + trackOffset + (height / 2 - iconSize / 2) + 3, margin * (i + 1) + height * i + (height / 2 - iconSize / 2) + 4 },
+			textSize,
+			trackPalette[colorIdx]
 		);
 	}
 
@@ -183,6 +203,7 @@ glui::IUILayer* drawFiles(glui::IWindow* win) {
 	// Get UI layer
 	auto fileLayer = win->addLayer(0);
 	auto renderer = fileLayer->getQuadRenderer();
+	auto textRenderer = fileLayer->getTextRenderer();
 
 	// Color palette
 	auto file = glui::color::fromHex("fff2ab");
@@ -200,6 +221,7 @@ glui::IUILayer* drawFiles(glui::IWindow* win) {
 	int filesx = 4;
 	int filesy = 3;
 	glui::types::vec2 margin { 20, 30 };
+	float labelHeight = 8.0f;
 	glui::types::vec2 tabSize{ 29, 12 };
 	float tabDip = 6.0f;
 	// Calc width/height
@@ -209,31 +231,38 @@ glui::IUILayer* drawFiles(glui::IWindow* win) {
 		for (int yi = 0; yi < filesy; yi++) {
 			// Add file stroke
 			renderer->add(
-				{ margin.x * (xi + 1) + width * xi, margin.y * (yi + 1) + height * yi },
+				{ margin.x * (xi + 1) + width * xi, labelHeight + margin.y * (yi + 1) + height * yi },
 				{ width, height },
 				fileStroke,
 				0
 			);
 			// Add file
 			renderer->add(
-				{ margin.x * (xi + 1) + width * xi + 1, margin.y * (yi + 1) + height * yi + 1 },
+				{ margin.x * (xi + 1) + width * xi + 1, labelHeight + margin.y * (yi + 1) + height * yi + 1 },
 				{ width - 2, height - 2 },
 				file,
 				0
 			);
 			// Add tab stroke
 			renderer->add(
-				{ margin.x * (xi + 1) + width * xi, margin.y * (yi + 1) + height * (yi + 1) - tabDip },
+				{ margin.x * (xi + 1) + width * xi, labelHeight + margin.y * (yi + 1) + height * (yi + 1) - tabDip },
 				{ tabSize.x, tabSize.y },
 				{ 0.345 * 0.8, 0.678 * 0.8, 0.78 * 0.8, 1 },
 				0
 			);
 			// Add tab
 			renderer->add(
-				{ margin.x * (xi + 1) + width * xi + 1, margin.y * (yi + 1) + height * (yi + 1) - tabDip + 1 },
+				{ margin.x * (xi + 1) + width * xi + 1, labelHeight + margin.y * (yi + 1) + height * (yi + 1) - tabDip + 1 },
 				{ tabSize.x - 2, tabSize.y - 2 },
 				{ 0.345, 0.678, 0.78, 1 },
 				0
+			);
+			// Add text
+			textRenderer->add(
+				"Folder " + std::to_string(1 + yi * filesx + xi),
+				{ margin.x * (xi + 1) + width * xi, margin.y * (yi + 1) + height * yi - labelHeight * 0.75f },
+				labelHeight * 1.75,
+				{ 1,1,1,1 }
 			);
 		}
 	}
@@ -265,6 +294,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	ctx = glui::init();
 
 	glui::IWindow* win = ctx->newWindow("ytp-editor v0.1a", 1280, 720);
+	// glui::IWindow* win = ctx->newWindow("ytp-editor v0.1a", 1920, 1080);
 	win->setShortcutCallback(openCallback, 'O', glui::mods::CTRL);
 	win->setShortcutCallback(saveCallback, 'S', glui::mods::CTRL);
 	win->setShortcutCallback(debugCallback, 0xC0, glui::mods::CTRL);
@@ -273,10 +303,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	setupMenuBar(win);
 
 	// Draw timeline
-	auto timelineLayer = drawTimeline(win);
+	// auto timelineLayer = drawTimeline(win);
 
 	// Draw stage
-	auto stageLayer = drawStage(win);
+	// auto stageLayer = drawStage(win);
 
 	// Draw files
 	auto fileLayer = drawFiles(win);
@@ -285,4 +315,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		ctx->pollEvents();
 		win->render();
 	}
+
+	delete win;
+	delete ctx;
 }

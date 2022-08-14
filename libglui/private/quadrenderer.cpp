@@ -34,13 +34,11 @@ out vec4 color;
 
 void main() {
 	px = (pos * 0.5 + 0.5) * resolution;
-	// px = (pos * 0.5 + 0.5) * size + offset;
 	rad = borderRadius;
 	origin = offset;
 	color = icolor;
 	osize = size;
 	gl_Position = vec4(pos, 0, 1);
-    // gl_Position = vec4(((pos + 1) / 2) * vec2(2 * size.x / resolution.x, 2 * size.y / resolution.y) + vec2(2 * offset.x / resolution.x, 2 * offset.y / resolution.y) - vec2(1, 1), 0.0, 1.0);
 }
 )";
 
@@ -157,6 +155,8 @@ QuadRenderer::QuadRenderer(int width, int height) : _width(width), _height(heigh
 }
 
 QuadRenderer::~QuadRenderer() {
+	glDeleteProgram(_prog);
+	glDeleteBuffers(1, &_ibo);
 	glDeleteBuffers(1, &_ebo);
 	glDeleteBuffers(1, &_vbo);
 	glDeleteVertexArrays(1, &_vao);
@@ -173,7 +173,10 @@ void QuadRenderer::draw() {
 	glUniform2f(glGetUniformLocation(_prog, "resolution"), _width, _height);
 
 	// Rebuffer
-	if (_dirtyBit) rebuffer();
+	if (_dirtyBit) {
+		rebuffer();
+		_dirtyBit = false;
+	}
 
 	// Draw
 	if (_quads.size() > 0) {

@@ -36,7 +36,7 @@ namespace glui {
 		void add(std::string text, types::vec2 pos, float size, types::color color) override;
 		void draw() override;
 	private:
-		void generateAtlas();
+		void generateAtlas(bool useMipmap = false);
 
 		int _width, _height;
 

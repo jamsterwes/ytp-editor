@@ -74,11 +74,11 @@ void glui::glhelpers::loadExtensions() {
 	extensionsLoaded = true;
 }
 
-HGLRC glui::glhelpers::createGLContext(HDC dc, int depthBits, int stencilBits) {
+HGLRC glui::glhelpers::createGLContext(HDC dc, int MSAAsamples, int depthBits, int stencilBits) {
 	
 	loadExtensions();
 
-	int attributeListInt[19];
+	int attributeListInt[23];
 	int pixelFormat[1];
 	int attributeList[7];
 	unsigned int formatCount;
@@ -144,8 +144,16 @@ HGLRC glui::glhelpers::createGLContext(HDC dc, int depthBits, int stencilBits) {
 	attributeListInt[16] = WGL_STENCIL_BITS_ARB;
 	attributeListInt[17] = stencilBits;
 
+	// Request MSAA
+	attributeListInt[18] = WGL_SAMPLE_BUFFERS_ARB;
+	attributeListInt[19] = GL_TRUE;
+
+	// Request MSAA sample #
+	attributeListInt[20] = WGL_SAMPLES_ARB;
+	attributeListInt[21] = MSAAsamples;
+
 	// Null terminate the attribute list.
-	attributeListInt[18] = 0;
+	attributeListInt[22] = 0;
 
 	// ** Choose pixel format
 

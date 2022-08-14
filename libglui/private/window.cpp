@@ -270,7 +270,7 @@ void Window::_initializeOpenGL() {
 	// Create draw ctx
 	_drawCtx = GetDC(_window);
 
-	_glCtx = glhelpers::createGLContext(_drawCtx);
+	_glCtx = glhelpers::createGLContext(_drawCtx, 4);
 
 	// Make context current
 	wglMakeCurrent(_drawCtx, _glCtx);

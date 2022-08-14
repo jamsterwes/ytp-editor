@@ -52,12 +52,15 @@ out vec4 out_color;
 
 void main() {
 	float alpha = texture2D(glyphTexture, uv).r;
+	//alpha = smoothstep(0.2, 1.0, alpha);
 	out_color = vec4(color.rgb, color.a * alpha);
 }
 )";
 
 unsigned int loadShader(GLenum type, const char* source);
 unsigned int loadProgram(const char* vertexSource, const char* fragmentSource);
+
+int cachedTex = -1;
 
 TextRenderer::TextRenderer(int width, int height) : _width(width), _height(height), _glyphs(), _glyphTextures() {
 	// Generate VAO
@@ -107,13 +110,13 @@ TextRenderer::TextRenderer(int width, int height) : _width(width), _height(heigh
 	}
 
 	// Load font
-	if (FT_New_Face(_ft, "fonts/Roboto-Regular.ttf", 0, &_face))
+	if (FT_New_Face(_ft, "C:/Windows/Fonts/segoeui.ttf", 0, &_face))
 	{
 		printf("Failed to load font!\n");
 	}
 
 	// Generate atlas
-	generateAtlas();
+	generateAtlas(true);
 }
 
 TextRenderer::~TextRenderer() {
@@ -123,39 +126,49 @@ TextRenderer::~TextRenderer() {
 	glDeleteVertexArrays(1, &_vao);
 }
 
-void TextRenderer::generateAtlas() {
-	int resolution = 2048;
+float ATLAS_CHAR_HEIGHT = 32;
+
+void TextRenderer::generateAtlas(bool useMipmap) {
+	int xresolution = 2048;
+	int yresolution = 1024;
 	int xptr = 0;
 	int yptr = 0;
 
 	// Generate texture
 	glGenTextures(1, &_tex);
 	glBindTexture(GL_TEXTURE_2D, _tex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, resolution, resolution, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, xresolution, yresolution, 0, GL_RED, GL_UNSIGNED_BYTE, nullptr);
 	// Texture options
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	if (useMipmap) {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	} else {
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	}
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	FT_GlyphSlot slot = _face->glyph;
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	for (int c = 32; c < 128; c++) {
 		// Render glyph
-		FT_Set_Pixel_Sizes(_face, 0, 128);
-		if (FT_Load_Char(_face, (char)c, FT_LOAD_RENDER)) {
+		FT_Set_Pixel_Sizes(_face, 0, ATLAS_CHAR_HEIGHT);
+		if (FT_Load_Char(_face, (char)c, FT_LOAD_RENDER | FT_LOAD_TARGET_LIGHT)) {
 			printf("Error loading glyph '%c'\n", (char)c);
 			return;
 		}
 
+		// SDF font
+		// FT_Render_Glyph(slot, FT_RENDER_MODE_SDF);
+
 		// Determine if need new row?
-		if (xptr + slot->bitmap.width > resolution) {
+		if (xptr + slot->bitmap.width > xresolution) {
 			xptr = 0;
-			yptr += 128;  // TODO: padding?
+			yptr += ATLAS_CHAR_HEIGHT;  // TODO: padding?
 		}
 
 		// Create atlas data
-		AtlasData data = AtlasData({ (float)xptr / (float)resolution, (float)yptr / (float)resolution, (xptr + (float)slot->bitmap.width) / (float)resolution, (yptr + (float)slot->bitmap.rows) / (float)resolution },
+		AtlasData data = AtlasData({ (float)xptr / (float)xresolution, (float)yptr / (float)yresolution, (xptr + (float)slot->bitmap.width) / (float)xresolution, (yptr + (float)slot->bitmap.rows) / (float)yresolution },
 			{ (float)slot->bitmap.width, (float)slot->bitmap.rows },
 			slot->bitmap_left, slot->bitmap_top,
 			slot->advance.x / 64.f
@@ -163,20 +176,22 @@ void TextRenderer::generateAtlas() {
 		_glyphTextures.insert({ c, data });
 
 		printf("Rendering %c at (%d, %d)\n", (char)c, xptr, yptr);
-		printf("UV (%.2f, %.2f, %.2f, %.2f)\n", (float)xptr / (float)resolution, (float)yptr / (float)resolution, (xptr + (float)slot->bitmap.width) / (float)resolution, (yptr + (float)slot->bitmap.rows) / (float)resolution);
+		printf("UV (%.2f, %.2f, %.2f, %.2f)\n", (float)xptr / (float)xresolution, (float)yptr / (float)yresolution, (xptr + (float)slot->bitmap.width) / (float)xresolution, (yptr + (float)slot->bitmap.rows) / (float)yresolution);
 
 		// Upload glyph
 		glTexSubImage2D(GL_TEXTURE_2D, 0, xptr, yptr, slot->bitmap.width, slot->bitmap.rows, GL_RED, GL_UNSIGNED_BYTE, slot->bitmap.buffer);
 
 		// Advance ptrs
 		xptr += slot->bitmap.width + slot->advance.x / 64.f + 1;
-		if (xptr >= resolution) {
+		if (xptr >= xresolution) {
 			xptr = 0;
-			yptr += 128;
+			yptr += ATLAS_CHAR_HEIGHT;
 		}
 	}
 
-	glGenerateMipmap(GL_TEXTURE_2D);
+	if (useMipmap) {
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
 }
 
 void TextRenderer::add(char c, types::vec2 pos, float size, types::color color) {
@@ -185,7 +200,7 @@ void TextRenderer::add(char c, types::vec2 pos, float size, types::color color) 
 
 void TextRenderer::add(std::string text, types::vec2 pos, float size, types::color color) {
 	int advanceX = 0;
-	float delta = size / 128;
+	float delta = size / ATLAS_CHAR_HEIGHT;
 	for (int i = 0; i < text.size(); i++) {
 		AtlasData& data = _glyphTextures[text[i]];
 		_glyphs.push_back({

@@ -6,6 +6,6 @@
 namespace glui {
 	namespace glhelpers{
 		void loadExtensions();
-		HGLRC createGLContext(HDC dc, int depthBits = 24, int stencilBits = 8);
+		HGLRC createGLContext(HDC dc, int MSAAsamples = 0, int depthBits = 24, int stencilBits = 8);
 	}
 }
